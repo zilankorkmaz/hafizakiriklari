@@ -1,0 +1,4 @@
+repository "HafizaKiriklari_Temiz/HafizaKiriklari_Temiz@18968393060404@cloud"
+  path "/"
+    br "/main"
+    co "/main"
