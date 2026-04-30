@@ -4,7 +4,7 @@
 
 Ana senaryo ve build baslangic sahnesi: **`Assets/Scenes/lab_final.unity`**.
 
-Projeyi cektikten sonra gelistirmeye bu sahneden devam edin. `MainScene`, `SampleScene` vb. yardimci veya eski denemeler olabilir; resmi akis `lab_final` uzerinedir.
+Projeyi cektikten sonra gelistirmeye bu sahneden devam edin. `SampleScene` gibi diger sahneler istege bagli kalabilir; tek ana sahne `lab_final` olarak dusunulebilir.
 
 `ProjectSettings/EditorBuildSettings.asset` icinde ilk (ve su an tek) build sahnesi `lab_final` olarak ayarlidir. Build Profiles icinde de ayni sahneyi kullandiginizdan emin olun.
 
