@@ -61,6 +61,8 @@ yazabilirsiniz.
 - **Tab** → Menü aç/kapat  
 - Ses ayarları otomatik olarak kaydedilir (PlayerPrefs)  
 - Pause tuşu Inspector’dan değiştirilebilir  
+- Oyuncu duraklatma menüsündeyken hareket edemez
+- Menü açıldığında imleç aktif hale gelir
 
 ---
 
