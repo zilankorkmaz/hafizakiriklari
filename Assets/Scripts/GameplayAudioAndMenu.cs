@@ -303,7 +303,7 @@ public class GameplayAudioAndMenu : MonoBehaviour
         StretchFull(helpRt, 12f, 12f, 12f, 12f);
         var helpTxt = helpTextGo.AddComponent<Text>();
         helpTxt.font = _uiFont;
-        helpTxt.fontSize = 22;
+        helpTxt.fontSize = 28;
         helpTxt.color = new Color(0.92f, 0.92f, 0.92f);
         helpTxt.alignment = TextAnchor.UpperLeft;
         helpTxt.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -341,7 +341,7 @@ public class GameplayAudioAndMenu : MonoBehaviour
         le.preferredHeight = 48f;
         var t = go.AddComponent<Text>();
         t.font = _uiFont;
-        t.fontSize = 18;
+        t.fontSize = 24;
         t.alignment = TextAnchor.MiddleCenter;
         t.color = new Color(0.75f, 0.78f, 0.85f);
         t.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -369,7 +369,7 @@ public class GameplayAudioAndMenu : MonoBehaviour
         labLe.minHeight = 22f;
         var lab = labGo.AddComponent<Text>();
         lab.font = _uiFont;
-        lab.fontSize = 20;
+        lab.fontSize = 26;
         lab.alignment = TextAnchor.MiddleLeft;
         lab.color = new Color(0.9f, 0.9f, 0.9f);
         lab.text = label;
@@ -458,7 +458,7 @@ public class GameplayAudioAndMenu : MonoBehaviour
         StretchFull(textRt);
         var txt = textGo.AddComponent<Text>();
         txt.font = _uiFont;
-        txt.fontSize = 22;
+        txt.fontSize = 28;
         txt.alignment = TextAnchor.MiddleCenter;
         txt.color = Color.white;
         txt.text = caption;
