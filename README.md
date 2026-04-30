@@ -1,18 +1,72 @@
 # HafizaKiriklari_Temiz
 
-## Calisma Sahnesi
+Unity ile geliştirilmiş hikâye odaklı keşif oyunu prototipi.
 
-Ana senaryo ve build baslangic sahnesi: **`Assets/Scenes/lab_final.unity`**.
+---
 
-Projeyi cektikten sonra gelistirmeye bu sahneden devam edin. `SampleScene` gibi diger sahneler istege bagli kalabilir; tek ana sahne `lab_final` olarak dusunulebilir.
+## 🎬 Çalışma Sahnesi
 
-`ProjectSettings/EditorBuildSettings.asset` icinde ilk (ve su an tek) build sahnesi `lab_final` olarak ayarlidir. Build Profiles icinde de ayni sahneyi kullandiginizdan emin olun.
+Projenin ana senaryo ve build başlangıç sahnesi:
 
-## Ses ve duraklatma menusu
+`Assets/Scenes/lab_final.unity`
 
-`lab_final` sahnesinde kok nesne olarak **`GameplayAudioAndMenu`** bulunur (ses clip'i Inspector'dan atanir).
+Projeyi açtıktan sonra geliştirmeye bu sahneden devam edilmesi önerilir.  
+Diğer sahneler (örneğin `SampleScene`) isteğe bağlıdır ve kaldırılabilir.
 
-1. Baska sahneye eklemeniz gerekirse: **Tools > Hafiza > Sahneye Ses ve Menu Ekle** veya bos GameObject uzerine `GameplayAudioAndMenu` surukleyin.
-2. Inspector'da **Ambience Clip** alanina arka plan sesinizi (loop uygun WAV/MP3) surukleyin. Alternatif: `Assets/Resources/Audio/` altina clip koyup **Resources Ambience Path** alanina ornegin `Audio/ambiance` yazin.
-3. Oyunda **Tab** ile menu acilir/kapanir; genel / muzik / SFX sesleri `PlayerPrefs` ile kaydedilir. **Pause Key** Inspector'dan degistirilebilir.
-4. Kod icinden kisa efekt: `GameplayAudioAndMenu.Instance?.PlaySfx(clip);`
+Build ayarlarında yalnızca bu sahnenin bulunduğundan emin olun:
+
+`ProjectSettings/EditorBuildSettings.asset`
+
+---
+
+## 🔊 Ses ve Duraklatma Menüsü
+
+`lab_final` sahnesinde kök nesne olarak **GameplayAudioAndMenu** bulunur.
+
+Bu bileşen:
+
+- Arka plan ambiyans/müzik çalar  
+- SFX (efekt) seslerini yönetir  
+- Tab tuşu ile açılan duraklatma menüsü oluşturur  
+- Ses ayarlarını (Master / Music / SFX) kaydeder  
+
+---
+
+## ⚙️ Kurulum
+
+### 1. Sahneye ekleme
+
+Başka bir sahnede kullanmak için:
+Tools > Hafiza > Sahneye Ses ve Menu Ekle
+
+veya boş bir GameObject’e `GameplayAudioAndMenu` scriptini ekleyebilirsiniz.
+
+---
+
+### 2. Arka plan sesi ekleme
+
+- Inspector’daki **Ambience Clip** alanına bir ses dosyası (WAV/MP3) sürükleyin.
+
+Alternatif olarak: 
+Assets/Resources/Audio/
+klasörüne ses ekleyip,  
+**Resources Ambience Path** alanına örneğin: 
+Audio/ambience
+yazabilirsiniz.
+
+---
+
+## 🎮 Kullanım
+
+- **Tab** → Menü aç/kapat  
+- Ses ayarları otomatik olarak kaydedilir (PlayerPrefs)  
+- Pause tuşu Inspector’dan değiştirilebilir  
+
+---
+
+## 💻 Kod ile kullanım
+
+Efekt sesi çalmak için:
+
+```csharp
+GameplayAudioAndMenu.Instance?.PlaySfx(clip);
