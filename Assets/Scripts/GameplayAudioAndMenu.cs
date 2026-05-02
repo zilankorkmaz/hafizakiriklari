@@ -15,6 +15,8 @@ public class GameplayAudioAndMenu : MonoBehaviour
 {
     public static GameplayAudioAndMenu Instance { get; private set; }
 
+    public float SfxVolume => _volMaster * _volSfx; // Dışarıdan SFX ses seviyesini okumak için eklendi
+
     const string PrefsMaster = "hk_vol_master";
     const string PrefsMusic = "hk_vol_music";
     const string PrefsSfx = "hk_vol_sfx";

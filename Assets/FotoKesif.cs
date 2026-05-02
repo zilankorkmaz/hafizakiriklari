@@ -36,14 +36,15 @@ public class FotoKesif : MonoBehaviour
 
         Debug.Log("Hafıza kırığı bulundu. Not okunuyor.");
         karartmaUI.SetActive(true);
-        Image img=karartmaUI.GetComponent<Image>();
+        Image img = karartmaUI.GetComponent<Image>();
         float timer = 0f;
         while (timer < 1.1f)
         {
-            img.color=new Color(0,0,0);
+            img.color = new Color(0, 0, 0, timer / 1.1f);
             timer += Time.deltaTime * 0.4f;
             yield return null;
         }
+        img.color = new Color(0, 0, 0, 1f); // Tam siyah olduğundan emin ol
 
         altyaziText.gameObject.SetActive(true);
         altyaziText.text = "";
@@ -55,8 +56,27 @@ public class FotoKesif : MonoBehaviour
         altyaziText.text = "Sadece 1 haftada ne olmuş olabilir ki?";
         yield return new WaitForSeconds(2f);
 
+        // Altyazıyı kapat
+        altyaziText.gameObject.SetActive(false);
+
+        // Ekranı yavaşça aydınlat (Fade Out)
+        timer = 1f;
+        while (timer > 0f)
+        {
+            img.color = new Color(0, 0, 0, timer);
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+        karartmaUI.SetActive(false);
+
         fotoIncelendi = true;
-        Debug.Log("Hafıza yeniden yükleniyor. Sahne 1 bitti.");
+        Debug.Log("Hafıza yeniden yüklendi. Panik başlıyor!");
+
+        // Panik Modunu Başlat
+        if (PanicManager.Instance != null)
+        {
+            PanicManager.Instance.StartPanicMode();
+        }
     }
     private void OnTriggerEnter(Collider other)
     {
