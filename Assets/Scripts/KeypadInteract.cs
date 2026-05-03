@@ -20,6 +20,13 @@ public class KeypadInteract : MonoBehaviour
         // Oyuncu yakındaysa ve E'ye basarsa
         if (playerNearby && Input.GetKeyDown(KeyCode.E))
         {
+            if (!PowerSwitch.isPowerOn)
+            {
+                // Elektrik yokken basılırsa uyarıyı belirginleştir (Opsiyonel olarak ses çalabilir)
+                Debug.Log("Elektrik yok, şifre paneli çalışmıyor!");
+                return;
+            }
+
             if (!keypadUI.IsKeypadOpen())
             {
                 // Etkileşim yazısını gizle ve şifre panelini aç
@@ -38,8 +45,20 @@ public class KeypadInteract : MonoBehaviour
             if (!keypadUI.IsKeypadOpen() && interactText != null)
             {
                 interactText.SetActive(true);
-                // Eğer TextMeshPro ise metni değiştirebilirsiniz:
-                // interactText.GetComponent<TextMeshProUGUI>().text = "E - Şifreyi Gir";
+                TextMeshProUGUI tmpText = interactText.GetComponent<TextMeshProUGUI>();
+                if (tmpText != null)
+                {
+                    if (PowerSwitch.isPowerOn)
+                    {
+                        tmpText.text = "E - Sifreyi Gir";
+                        tmpText.color = Color.white;
+                    }
+                    else
+                    {
+                        tmpText.text = "GUC YOK - Salteri Bul";
+                        tmpText.color = Color.red;
+                    }
+                }
             }
         }
     }

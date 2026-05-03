@@ -111,7 +111,20 @@ public class KeypadUI : MonoBehaviour
     {
         if (passwordDisplayText != null)
         {
-            passwordDisplayText.text = currentInput;
+            string displayString = "";
+            for (int i = 0; i < maxInputLength; i++)
+            {
+                if (i < currentInput.Length)
+                {
+                    displayString += currentInput[i] + " ";
+                }
+                else
+                {
+                    displayString += "_ ";
+                }
+            }
+
+            passwordDisplayText.text = displayString.Trim();
             passwordDisplayText.color = Color.white; // Rengi normale döndür
         }
     }

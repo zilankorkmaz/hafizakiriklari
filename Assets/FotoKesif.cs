@@ -30,6 +30,12 @@ public class FotoKesif : MonoBehaviour
         sinematikBasladi = true;
         if (etkilesimYazisi != null) etkilesimYazisi.gameObject.SetActive(false);
 
+        // Eğer oyuncu masaya çok erken gelirse, ekrandaki Tutorial yazılarını anında siler
+        if (TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.HideTutorial();
+        }
+
         glitchUI.SetActive(true);
         yield return new WaitForSeconds(0.4f);
         glitchUI.SetActive(false);
@@ -70,13 +76,7 @@ public class FotoKesif : MonoBehaviour
         karartmaUI.SetActive(false);
 
         fotoIncelendi = true;
-        Debug.Log("Hafıza yeniden yüklendi. Panik başlıyor!");
-
-        // Panik Modunu Başlat
-        if (PanicManager.Instance != null)
-        {
-            PanicManager.Instance.StartPanicMode();
-        }
+        Debug.Log("Hafıza yeniden yüklendi. Sahne 1 hikayesi anlaşıldı.");
     }
     private void OnTriggerEnter(Collider other)
     {

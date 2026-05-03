@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using TMPro;
 
 public class PanicManager : MonoBehaviour
 {
@@ -11,12 +12,16 @@ public class PanicManager : MonoBehaviour
     private bool isPanicActive = false;
     private float currentTime;
 
+    [Header("UI Ayarları")]
+    public TextMeshProUGUI timerText; // Ekranda geri sayımı gösterecek metin
+
     [Header("Efektler")]
     [Tooltip("Panik anında yanıp sönecek odadaki lambalar")]
     public Light[] roomLights;
     public AudioSource alarmSesi;
 
     private float[] originalIntensities;
+    private Color[] originalColors;
 
     void Awake()
     {
@@ -28,15 +33,25 @@ public class PanicManager : MonoBehaviour
     {
         currentTime = panicTime;
         
-        // Işıkların orijinal şiddetlerini kaydet
+        // Işıkların orijinal şiddetlerini ve renklerini kaydet
         if (roomLights != null && roomLights.Length > 0)
         {
             originalIntensities = new float[roomLights.Length];
+            originalColors = new Color[roomLights.Length];
+            
             for (int i = 0; i < roomLights.Length; i++)
             {
                 if (roomLights[i] != null)
+                {
                     originalIntensities[i] = roomLights[i].intensity;
+                    originalColors[i] = roomLights[i].color;
+                }
             }
+        }
+
+        if (timerText != null)
+        {
+            timerText.gameObject.SetActive(false); // Başlangıçta gizli
         }
     }
 
@@ -47,7 +62,21 @@ public class PanicManager : MonoBehaviour
             // Süreyi azalt
             currentTime -= Time.deltaTime;
 
-            // Işıkları çıldırt (Titreme)
+            // Ekranda süreyi güncelle (00:00 formatında)
+            if (timerText != null)
+            {
+                int minutes = Mathf.FloorToInt(currentTime / 60);
+                int seconds = Mathf.FloorToInt(currentTime % 60);
+                timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+
+                // Süre azaldıkça kırmızı yazsın veya yanıp sönsün (Opsiyonel)
+                if (currentTime < 10f && seconds % 2 == 0)
+                    timerText.color = Color.red;
+                else
+                    timerText.color = Color.white;
+            }
+
+            // Işıkları çıldırt ve kırmızı yap
             FlickerLights();
 
             // Süre biterse oyunu kaybet
@@ -66,6 +95,9 @@ public class PanicManager : MonoBehaviour
         isPanicActive = true;
         Debug.Log("PANİK BAŞLADI! Kalan Süre: " + panicTime);
 
+        if (timerText != null)
+            timerText.gameObject.SetActive(true);
+
         if (alarmSesi != null && !alarmSesi.isPlaying)
         {
             alarmSesi.Play();
@@ -82,6 +114,9 @@ public class PanicManager : MonoBehaviour
             alarmSesi.Stop();
         }
 
+        if (timerText != null)
+            timerText.gameObject.SetActive(false);
+
         // Işıkları normale döndür
         RestoreLights();
     }
@@ -94,6 +129,9 @@ public class PanicManager : MonoBehaviour
         {
             if (roomLights[i] != null)
             {
+                // Rengi kırmızı yap
+                roomLights[i].color = Color.red;
+
                 // Rastgele kapatıp açma veya şiddetini değiştirme
                 if (Random.value > 0.8f) // %20 ihtimalle tamamen kapanır
                 {
@@ -118,6 +156,7 @@ public class PanicManager : MonoBehaviour
             {
                 roomLights[i].enabled = true;
                 roomLights[i].intensity = originalIntensities[i];
+                roomLights[i].color = originalColors[i]; // Rengi geri ver
             }
         }
     }
