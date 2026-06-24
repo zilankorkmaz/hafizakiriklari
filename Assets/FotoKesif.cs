@@ -10,10 +10,17 @@ public class FotoKesif : MonoBehaviour
     public TMPro.TextMeshProUGUI etkilesimYazisi; //E
     public TMPro.TextMeshProUGUI  altyaziText;
 
+    [Header("Hikaye Metinleri")]
+    [TextArea(2, 4)]
+    public string[] noteLines; // Unity Inspector'dan eklenecek not satırları
+
     [Header("Efekt ayarları")]
     public float glitchSuresi = 0.4f;
     public float incelemeSuresi = 2f;
     public float kararmaHizi = 1f;
+
+    [Header("Ses Efektleri")]
+    public AudioClip fisiltiSesi; // Okunurken çalacak opsiyonel ses
 
     private bool alandaMi = false;
     private bool fotoIncelendi = false;
@@ -22,7 +29,7 @@ public class FotoKesif : MonoBehaviour
 
     void Update()
     {
-        if (alandaMi && !fotoIncelendi && Input.GetKeyDown(KeyCode.E))
+        if (alandaMi && !sinematikBasladi && Input.GetKeyDown(KeyCode.E))
             StartCoroutine(HafizaKirigiSekansi());
     }
     IEnumerator HafizaKirigiSekansi()
@@ -40,6 +47,19 @@ public class FotoKesif : MonoBehaviour
         yield return new WaitForSeconds(0.4f);
         glitchUI.SetActive(false);
 
+        // Fısıltı Sesi Çal (Varsa)
+        if (fisiltiSesi != null)
+        {
+            AudioSource aSrc = gameObject.GetComponent<AudioSource>();
+            if (aSrc == null)
+            {
+                aSrc = gameObject.AddComponent<AudioSource>();
+                aSrc.spatialBlend = 0f; // Sesi 2D yaparak mesafeden kısılmasını engelle
+            }
+            aSrc.volume = 1f; // Sesi en yükseğe al
+            aSrc.PlayOneShot(fisiltiSesi);
+        }
+
         Debug.Log("Hafıza kırığı bulundu. Not okunuyor.");
         karartmaUI.SetActive(true);
         Image img = karartmaUI.GetComponent<Image>();
@@ -55,12 +75,27 @@ public class FotoKesif : MonoBehaviour
         altyaziText.gameObject.SetActive(true);
         altyaziText.text = "";
 
-        altyaziText.text = "Tarih 15.03.2026...";
-        yield return new WaitForSeconds(2f);
-        altyaziText.text = "Notu yazan haklıymış.\nHiçbir şey hatırlayamıyorum.";
-        yield return new WaitForSeconds(2f);
-        altyaziText.text = "Sadece 1 haftada ne olmuş olabilir ki?";
-        yield return new WaitForSeconds(2f);
+        // Inspector'dan girilen not satırlarını sırayla göster
+        if (noteLines != null && noteLines.Length > 0)
+        {
+            foreach (string line in noteLines)
+            {
+                altyaziText.text = line;
+                yield return new WaitForSeconds(3f); // Her satır ekranda 3 saniye kalır
+            }
+        }
+        else
+        {
+            // Eğer inspector'dan metin girilmemişse varsayılan eski metni göster (Hata olmaması için)
+            altyaziText.text = "15 Mart...";
+            yield return new WaitForSeconds(2f);
+            altyaziText.text = "Hiçbir şey hatırlamıyorum.";
+            yield return new WaitForSeconds(2f);
+            altyaziText.text = "Bugünün tarihini bile bilmiyorum.";
+            yield return new WaitForSeconds(2f);
+            altyaziText.text = "Şifre bu olabilir mi?";
+            yield return new WaitForSeconds(2.5f);
+        }
 
         // Altyazıyı kapat
         altyaziText.gameObject.SetActive(false);
@@ -75,17 +110,25 @@ public class FotoKesif : MonoBehaviour
         }
         karartmaUI.SetActive(false);
 
-        fotoIncelendi = true;
+        sinematikBasladi = false;
+        
+        // Eğer oyuncu hala alanın içindeyse E yazısını tekrar çıkar
+        if (alandaMi && etkilesimYazisi != null)
+        {
+            etkilesimYazisi.text = "E ile incele";
+            etkilesimYazisi.gameObject.SetActive(true);
+        }
+
         Debug.Log("Hafıza yeniden yüklendi. Sahne 1 hikayesi anlaşıldı.");
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player") && !fotoIncelendi)
+        if(other.CompareTag("Player"))
         {
             alandaMi=true;
-            if (etkilesimYazisi != null)
+            if (!sinematikBasladi && etkilesimYazisi != null)
             {
-                etkilesimYazisi.text = "E ile fotografi incele";
+                etkilesimYazisi.text = "E ile incele";
                 etkilesimYazisi.gameObject.SetActive(true);
             }
         }

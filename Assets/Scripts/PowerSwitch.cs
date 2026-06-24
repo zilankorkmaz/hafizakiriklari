@@ -4,6 +4,14 @@ using TMPro;
 public class PowerSwitch : MonoBehaviour
 {
     public static bool isPowerOn = false; // Tüm sistemler için genel güç durumu
+    public static int collectedFuses = 0; // Toplanan sigorta sayısı
+
+    [Header("Bulmaca Ayarları")]
+    public int requiredFuses = 3; // Gereken toplam sigorta sayısı
+
+    [Header("Ayarlar")]
+    public bool triggersPanic = true; // Şalter açıldığında panik başlasın mı? (Sahne 3 için false yapılabilir)
+    public Light[] roomLightsToEnable; // Şalter açıldığında yanacak oda ışıkları
 
     [Header("UI Ayarları")]
     public GameObject interactText; // Ekranda belirecek "E - Şalteri Aç" yazısı (Canvas içinde)
@@ -17,6 +25,7 @@ public class PowerSwitch : MonoBehaviour
     void Start()
     {
         isPowerOn = false; // Oyun başladığında güç kapalı
+        collectedFuses = 0; // Sayacı sıfırla
 
         if (interactText != null)
             interactText.SetActive(false);
@@ -31,7 +40,14 @@ public class PowerSwitch : MonoBehaviour
     {
         if (playerNearby && !isPowerOn && Input.GetKeyDown(KeyCode.E))
         {
-            TurnOnPower();
+            if (collectedFuses >= requiredFuses)
+            {
+                TurnOnPower();
+            }
+            else
+            {
+                Debug.Log("Yeterli sigorta yok!");
+            }
         }
     }
 
@@ -54,8 +70,17 @@ public class PowerSwitch : MonoBehaviour
             indicatorLight.color = Color.green;
         }
 
-        // --- YENİ EKLENEN: PANİK HEMEN BAŞLAR ---
-        if (PanicManager.Instance != null)
+        // Oda Işıklarını Yak
+        if (roomLightsToEnable != null && roomLightsToEnable.Length > 0)
+        {
+            foreach (Light l in roomLightsToEnable)
+            {
+                if (l != null) l.enabled = true;
+            }
+        }
+
+        // --- PANİK DURUMU ---
+        if (triggersPanic && PanicManager.Instance != null)
         {
             PanicManager.Instance.StartPanicMode();
         }
@@ -69,8 +94,10 @@ public class PowerSwitch : MonoBehaviour
             if (interactText != null)
             {
                 interactText.SetActive(true);
-                TextMeshProUGUI tmpText = interactText.GetComponent<TextMeshProUGUI>();
-                if (tmpText != null) tmpText.text = "E - Salteri Ac";
+                string msg = (collectedFuses >= requiredFuses) 
+                    ? "E - Şalteri Aç" 
+                    : $"Eksik Sigorta ({collectedFuses}/{requiredFuses})";
+                SetInteractionText(msg);
             }
         }
     }
@@ -83,5 +110,14 @@ public class PowerSwitch : MonoBehaviour
             if (interactText != null)
                 interactText.SetActive(false);
         }
+    }
+
+    private void SetInteractionText(string msg)
+    {
+        var tmp = interactText.GetComponent<TextMeshProUGUI>();
+        if (tmp != null) { tmp.text = msg; return; }
+
+        var txt = interactText.GetComponent<UnityEngine.UI.Text>();
+        if (txt != null) txt.text = msg;
     }
 }

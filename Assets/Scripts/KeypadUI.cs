@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEngine.Events;
 
 public class KeypadUI : MonoBehaviour
 {
@@ -17,27 +18,41 @@ public class KeypadUI : MonoBehaviour
     public PasswordDoor targetDoor;       // Açılacak kapı
     public MonoBehaviour playerController; // Oyuncu kontrolcüsü (FirstPersonController vb.) - Hareketini durdurmak için
 
+    [Header("Özel Olaylar")]
+    public UnityEvent onPasswordCorrect; // Şifre doğru girildiğinde tetiklenecek olaylar (Final vs.)
+
     private bool isOpen = false;
     private bool isProcessing = false;
+    private float openTime = 0f;
+
+    // Sahnede aynı anda birden fazla kapı varsa, tuşların doğru kapıya basmasını sağlar
+    public static KeypadUI activeKeypad;
 
     void Start()
     {
-        keypadPanel.SetActive(false);
+        if (!isOpen)
+        {
+            keypadPanel.SetActive(false);
+        }
         UpdateDisplay();
     }
 
     void Update()
     {
-        // Panel açıkken Escape'e basılırsa kapat
-        if (isOpen && Input.GetKeyDown(KeyCode.Escape))
+        // Panel açıkken Escape veya E ile kapat (hemen kapanmaması için gecikme eklendi)
+        if (isOpen && Time.time > openTime + 0.1f)
         {
-            CloseKeypad();
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E))
+            {
+                CloseKeypad();
+            }
         }
     }
 
     public void OpenKeypad()
     {
         isOpen = true;
+        activeKeypad = this; // Aktif kapı bu oldu
         keypadPanel.SetActive(true);
         currentInput = "";
         UpdateDisplay();
@@ -48,11 +63,20 @@ public class KeypadUI : MonoBehaviour
 
         if (playerController != null)
             playerController.enabled = false;
+        else
+        {
+            var fps = FindFirstObjectByType<StarterAssets.FirstPersonController>();
+            if (fps != null) fps.enabled = false;
+        }
+
+        openTime = Time.time;
     }
 
     public void CloseKeypad()
     {
         isOpen = false;
+        if (activeKeypad == this) activeKeypad = null;
+        
         keypadPanel.SetActive(false);
 
         // Mouse'u gizle ve oyuncu hareketini geri ver
@@ -61,6 +85,11 @@ public class KeypadUI : MonoBehaviour
 
         if (playerController != null)
             playerController.enabled = true;
+        else
+        {
+            var fps = FindFirstObjectByType<StarterAssets.FirstPersonController>();
+            if (fps != null) fps.enabled = true;
+        }
     }
 
     public bool IsKeypadOpen()
@@ -71,6 +100,13 @@ public class KeypadUI : MonoBehaviour
     // Butonlara tıklanınca çağrılacak (0-9 rakamları için)
     public void AddDigit(string digit)
     {
+        // Eğer bu kapı açık değilse ama tuşlara basıldıysa, aktif olan kapıya yönlendir
+        if (!isOpen && activeKeypad != null && activeKeypad != this)
+        {
+            activeKeypad.AddDigit(digit);
+            return;
+        }
+
         if (isProcessing) return;
 
         if (currentInput.Length < maxInputLength)
@@ -83,6 +119,12 @@ public class KeypadUI : MonoBehaviour
     // Clear (Temizle) butonu için
     public void ClearInput()
     {
+        if (!isOpen && activeKeypad != null && activeKeypad != this)
+        {
+            activeKeypad.ClearInput();
+            return;
+        }
+
         if (isProcessing) return;
         currentInput = "";
         UpdateDisplay();
@@ -91,7 +133,15 @@ public class KeypadUI : MonoBehaviour
     // Enter (Onayla) butonu için
     public void SubmitPassword()
     {
+        if (!isOpen && activeKeypad != null && activeKeypad != this)
+        {
+            activeKeypad.SubmitPassword();
+            return;
+        }
+
         if (isProcessing) return;
+
+        Debug.Log($"Şifre Kontrolü Yapılıyor! Girilen: '{currentInput}', Olması Gereken: '{correctPassword}'");
 
         if (currentInput == correctPassword)
         {
@@ -99,6 +149,12 @@ public class KeypadUI : MonoBehaviour
             if (targetDoor != null)
             {
                 targetDoor.OpenDoor();
+            }
+            
+            // Eğer inspector'da bir olay bağlandıysa onu çalıştır (örneğin Finali tetikle)
+            if (onPasswordCorrect != null)
+            {
+                onPasswordCorrect.Invoke();
             }
         }
         else

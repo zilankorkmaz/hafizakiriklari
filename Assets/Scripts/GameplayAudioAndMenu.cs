@@ -72,6 +72,9 @@ public class GameplayAudioAndMenu : MonoBehaviour
 
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
         LoadPrefs();
         ApplyVolumes();
 

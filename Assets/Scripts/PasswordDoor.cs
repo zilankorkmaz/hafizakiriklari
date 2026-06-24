@@ -67,7 +67,21 @@ public class PasswordDoor : MonoBehaviour
     {
         yield return new WaitForSeconds(sceneTransitionDelay);
 
-        if (!string.IsNullOrEmpty(nextSceneName))
+        if (nextSceneName == "TrueEnding")
+        {
+            if (GameEndManager.Instance != null)
+                GameEndManager.Instance.ShowTrueEndingChoice();
+            else
+                Debug.LogWarning("GameEndManager bulunamadı! Lütfen Tools menüsünden Final Ekranını kurun.");
+        }
+        else if (nextSceneName == "BetrayalEnding")
+        {
+            if (GameEndManager.Instance != null)
+                GameEndManager.Instance.ShowBetrayalEnding();
+            else
+                Debug.LogWarning("GameEndManager bulunamadı! Lütfen Tools menüsünden Final Ekranını kurun.");
+        }
+        else if (!string.IsNullOrEmpty(nextSceneName))
         {
             Debug.Log("Yeni sahne yükleniyor: " + nextSceneName);
             SceneManager.LoadScene(nextSceneName);

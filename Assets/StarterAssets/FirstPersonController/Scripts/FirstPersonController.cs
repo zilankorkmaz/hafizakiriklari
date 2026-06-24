@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -112,6 +112,14 @@ namespace StarterAssets
 
 		private void Update()
 		{
+			// Safeguard: Force sensible values in case the Inspector has insane numbers
+			Gravity = -15.0f;
+			if (JumpHeight > 3.0f || JumpHeight < 0.1f) JumpHeight = 1.2f;
+			
+			// Failsafe: Destroy Rigidbody if it exists, it conflicts with CharacterController!
+			Rigidbody rb = GetComponent<Rigidbody>();
+			if (rb != null) Destroy(rb);
+
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
@@ -120,13 +128,25 @@ namespace StarterAssets
 		private void LateUpdate()
 		{
 			CameraRotation();
+			
+			// Fallback: If camera is completely broken or detached, force MainCamera to follow our target
+			if (_mainCamera != null && CinemachineCameraTarget != null)
+			{
+				// Only do this if there's no active CinemachineBrain taking control, or as a hard override
+				var brain = _mainCamera.GetComponent("CinemachineBrain") as MonoBehaviour;
+				if (brain == null || !brain.enabled)
+				{
+					_mainCamera.transform.position = CinemachineCameraTarget.transform.position;
+					_mainCamera.transform.rotation = CinemachineCameraTarget.transform.rotation;
+				}
+			}
 		}
 
 		private void GroundedCheck()
 		{
-			// set sphere position, with offset
-			Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-			Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+			// ONLY use built-in CharacterController ground check.
+			// Any sphere casts can cause floating bugs if offsets are wrong.
+			Grounded = _controller.isGrounded;
 		}
 
 		private void CameraRotation()
@@ -196,6 +216,22 @@ namespace StarterAssets
 
 			// move the player
 			_controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+
+			// Fix sticking to ceiling: if we hit something above us (via flags or a safety raycast), stop moving up
+			if (_verticalVelocity > 0.0f)
+			{
+				bool hitCeiling = (_controller.collisionFlags & CollisionFlags.Above) != 0;
+				if (!hitCeiling) 
+				{
+					// Raycast up from center of player to detect ceiling reliably
+					hitCeiling = Physics.Raycast(transform.position + Vector3.up * 1f, Vector3.up, 1.2f, GroundLayers);
+				}
+
+				if (hitCeiling)
+				{
+					_verticalVelocity = -5f;
+				}
+			}
 		}
 
 		private void JumpAndGravity()

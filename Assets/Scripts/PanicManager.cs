@@ -166,7 +166,15 @@ public class PanicManager : MonoBehaviour
         isPanicActive = false;
         Debug.Log("SÜRE BİTTİ! SAHNE BAŞA SARIYOR...");
         
-        // Ekrana tam siyah bir UI koyup jumpscare da eklenebilir, şimdilik direkt sahneyi yeniden yüklüyoruz.
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // Eğer sahnede GameEndingManager varsa (Final sahnesiyse) kısır döngü sonunu tetikle
+        if (GameEndingManager.Instance != null)
+        {
+            GameEndingManager.Instance.TriggerLoopEnding();
+        }
+        else
+        {
+            // Yoksa (Sahne 2 gibi) normal şekilde sahneyi yeniden yükle
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
     }
 }

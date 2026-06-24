@@ -8,6 +8,7 @@ public class KeypadInteract : MonoBehaviour
     public KeypadUI keypadUI;       // Şifre ekranı yöneticisi
 
     private bool playerNearby = false;
+    private int collidersInTrigger = 0;
 
     void Start()
     {
@@ -40,24 +41,38 @@ public class KeypadInteract : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            collidersInTrigger++;
             playerNearby = true;
-            // Eğer keypad o an açık değilse etkileşim yazısını göster
-            if (!keypadUI.IsKeypadOpen() && interactText != null)
+            UpdateInteractText();
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerNearby = true;
+            UpdateInteractText();
+        }
+    }
+
+    private void UpdateInteractText()
+    {
+        if (!keypadUI.IsKeypadOpen() && interactText != null)
+        {
+            interactText.SetActive(true);
+            TextMeshProUGUI tmpText = interactText.GetComponent<TextMeshProUGUI>();
+            if (tmpText != null)
             {
-                interactText.SetActive(true);
-                TextMeshProUGUI tmpText = interactText.GetComponent<TextMeshProUGUI>();
-                if (tmpText != null)
+                if (PowerSwitch.isPowerOn)
                 {
-                    if (PowerSwitch.isPowerOn)
-                    {
-                        tmpText.text = "E - Sifreyi Gir";
-                        tmpText.color = Color.white;
-                    }
-                    else
-                    {
-                        tmpText.text = "GUC YOK - Salteri Bul";
-                        tmpText.color = Color.red;
-                    }
+                    tmpText.text = "E - Sifreyi Gir";
+                    tmpText.color = Color.white;
+                }
+                else
+                {
+                    tmpText.text = "GUC YOK - Salteri Bul";
+                    tmpText.color = Color.red;
                 }
             }
         }
@@ -67,14 +82,16 @@ public class KeypadInteract : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playerNearby = false;
-            if (interactText != null)
-                interactText.SetActive(false);
-            
-            // Oyuncu uzaklaştığında keypad'i zorla kapat
-            if (keypadUI.IsKeypadOpen())
+            collidersInTrigger--;
+            if (collidersInTrigger <= 0)
             {
-                keypadUI.CloseKeypad();
+                collidersInTrigger = 0;
+                playerNearby = false;
+                if (interactText != null)
+                    interactText.SetActive(false);
+                
+                // Oyuncu hareket edemezken fizik motoru ufak kaymalar yaparsa 
+                // panelin anında kapanmaması için CloseKeypad çağrısı kaldırıldı.
             }
         }
     }
