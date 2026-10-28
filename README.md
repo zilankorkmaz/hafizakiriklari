@@ -6,7 +6,7 @@
 
 ---
 
-## 📖 Hikâye
+## 📖 Hikaye
 
 Karanlık bir odada uyanıyorsunuz. Neden burada olduğunuzu veya kim olduğunuzu bilmiyorsunuz. Etrafınızdaki terk edilmiş laboratuvar, yarım kalmış deneyler ve korkutucu fısıltılar barındırıyor. Tek rehberiniz, size ait olup olmadığını bile bilmediğiniz eski bir günlük ve duvardaki fotoğraflar. 
 
